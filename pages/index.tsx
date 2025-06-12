@@ -14,7 +14,7 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to Vercel Trick By <a href="https://alcashzone.com">Alcash Zone</a>
+          Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
 
         <p className={styles.description}>
@@ -23,31 +23,31 @@ const Home: NextPage = () => {
         </p>
 
         <div className={styles.grid}>
-          <a href="https://alcashzone.com/category/adsterra-earning/" className={styles.card}>
+          <a href="https://nextjs.org/docs" className={styles.card}>
             <h2>Documentation &rarr;</h2>
-            <p>Here you can find how to earn money from Adsterra .</p>
+            <p>Find in-depth information about Next.js features and API.</p>
           </a>
 
-          <a href="https://alcashzone.com/category/adsense-approval/" className={styles.card}>
-            <h2>Master In AdSense Approval &rarr;</h2>
-            <p>Here you can find the of how you become master in AdSense approval!</p>
-          </a>
-
-          <a
-            href="https://alcashzone.com/category/blogging/"
-            className={styles.card}
-          >
-            <h2>Blogging &rarr;</h2>
-            <p>Here you can find the source to become master in blogging</p>
+          <a href="https://nextjs.org/learn" className={styles.card}>
+            <h2>Learn &rarr;</h2>
+            <p>Learn about Next.js in an interactive course with quizzes!</p>
           </a>
 
           <a
-            href="https://newstick.us"
+            href="https://github.com/vercel/next.js/tree/canary/examples"
             className={styles.card}
           >
-            <h2>News &rarr;</h2>
+            <h2>Examples &rarr;</h2>
+            <p>Discover and deploy boilerplate example Next.js projects.</p>
+          </a>
+
+          <a
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            className={styles.card}
+          >
+            <h2>Deploy &rarr;</h2>
             <p>
-              Here you can find showviz news and other national and internation news
+              Instantly deploy your Next.js site to a public URL with Vercel.
             </p>
           </a>
         </div>
