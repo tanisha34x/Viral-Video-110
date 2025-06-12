@@ -5,8 +5,8 @@ declare module 'react' {
 }
 
 declare module 'next/head' {
-  import { Component } from 'react';
-  export default class Head extends Component<any> {}
+  import React from 'react';
+  export default function Head(props: { children: React.ReactNode }): JSX.Element;
 }
 
 declare module 'next' {
