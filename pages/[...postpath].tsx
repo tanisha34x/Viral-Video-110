@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
@@ -30,7 +30,7 @@ interface PostNode {
 }
 
 interface GraphQLResponse {
-	post: PostNode;
+	post: PostNode | null;
 }
 
 interface ServerSideContext {
@@ -55,8 +55,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx: ServerSideCont
 		const path = pathArr.join('/');
 		const fbclid = ctx.query.fbclid;
 
+		console.log('Debug - Path:', path);
+		console.log('Debug - GraphQL Variables:', { path: `/${path}/` });
+
 		// redirect if facebook is the referer or request contains fbclid
 		if (referringURL?.includes('facebook.com') || fbclid) {
+			console.log('Debug - Redirecting Facebook traffic');
 			return {
 				redirect: {
 					permanent: false,
@@ -70,22 +74,24 @@ export const getServerSideProps: GetServerSideProps = async (ctx: ServerSideCont
 		const query = gql`
 			query GetPost($path: ID!) {
 				post(id: $path, idType: URI) {
-					id
-					excerpt
-					title
-					link
-					dateGmt
-					modifiedGmt
-					content
-					author {
-						node {
-							name
+					... on Post {
+						id
+						excerpt
+						title
+						link
+						dateGmt
+						modifiedGmt
+						content
+						author {
+							node {
+								name
+							}
 						}
-					}
-					featuredImage {
-						node {
-							sourceUrl
-							altText
+						featuredImage {
+							node {
+								sourceUrl
+								altText
+							}
 						}
 					}
 				}
@@ -96,23 +102,36 @@ export const getServerSideProps: GetServerSideProps = async (ctx: ServerSideCont
 			path: `/${path}/`,
 		};
 
-		const data = await graphQLClient.request<GraphQLResponse>(query, variables);
+		try {
+			console.log('Debug - Sending GraphQL request');
+			const data = await graphQLClient.request<GraphQLResponse>(query, variables);
+			console.log('Debug - GraphQL Response:', JSON.stringify(data, null, 2));
 
-		if (!data.post) {
+			if (!data || !data.post) {
+				console.log('Debug - No post found in response');
+				return {
+					notFound: true,
+				};
+			}
+
 			return {
-				notFound: true,
+				props: {
+					path,
+					post: data.post,
+					host: ctx.req.headers.host || 'alcashzone.com',
+				},
 			};
+		} catch (graphqlError) {
+			console.error('Debug - GraphQL Request Error:', graphqlError);
+			if (graphqlError instanceof Error && graphqlError.message.includes('could not be found')) {
+				return {
+					notFound: true,
+				};
+			}
+			throw graphqlError;
 		}
-
-		return {
-			props: {
-				path,
-				post: data.post,
-				host: ctx.req.headers.host || 'alcashzone.com',
-			},
-		};
 	} catch (error) {
-		console.error('Error fetching post:', error);
+		console.error('Debug - Outer Error:', error);
 		return {
 			notFound: true,
 		};
@@ -125,38 +144,35 @@ interface PostProps {
 	path: string;
 }
 
-const Post: React.FC<PostProps> = (props: PostProps) => {
-	const { post, host, path } = props;
-
-	// to remove tags from excerpt
+const Post = ({ post, host, path }: PostProps): React.ReactElement => {
 	const removeTags = (str: string) => {
 		if (str === null || str === '') return '';
 		return str.toString().replace(/(<([^>]+)>)/gi, '').replace(/\[[^\]]*\]/, '');
 	};
 
 	const sanitizedContent = React.useMemo(() => {
-		// Basic XSS protection by removing script tags
 		return post.content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
 	}, [post.content]);
 
 	return (
 		<div className={styles['post-wrapper']}>
 			<Head>
-				<title>{post.title}</title>
-				<meta name="description" content={removeTags(post.excerpt)} />
-				<meta property="og:title" content={post.title} />
-				<meta property="og:description" content={removeTags(post.excerpt)} />
-				<meta property="og:type" content="article" />
-				<meta property="og:locale" content="en_US" />
-				<meta property="og:site_name" content={host.split('.')[0]} />
-				<meta property="article:published_time" content={post.dateGmt} />
-				<meta property="article:modified_time" content={post.modifiedGmt} />
-				<meta property="og:image" content={post.featuredImage.node.sourceUrl} />
+				<title key="title">{post.title}</title>
+				<meta key="description" name="description" content={removeTags(post.excerpt)} />
+				<meta key="og:title" property="og:title" content={post.title} />
+				<meta key="og:description" property="og:description" content={removeTags(post.excerpt)} />
+				<meta key="og:type" property="og:type" content="article" />
+				<meta key="og:locale" property="og:locale" content="en_US" />
+				<meta key="og:site_name" property="og:site_name" content={host.split('.')[0]} />
+				<meta key="article:published_time" property="article:published_time" content={post.dateGmt} />
+				<meta key="article:modified_time" property="article:modified_time" content={post.modifiedGmt} />
+				<meta key="og:image" property="og:image" content={post.featuredImage.node.sourceUrl} />
 				<meta
+					key="og:image:alt"
 					property="og:image:alt"
 					content={post.featuredImage.node.altText || post.title}
 				/>
-				<link rel="canonical" href={`https://${host}/${path}`} />
+				<link key="canonical" rel="canonical" href={`https://${host}/${path}`} />
 			</Head>
 			<div className={styles['post-container']}>
 				<h1 className={styles['post-title']}>{post.title}</h1>
