@@ -1,34 +1,202 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🔗 Facebook Link Redirector
 
-## Getting Started
+A simple, serverless Facebook link redirector built for Vercel that displays a blog post to regular users but redirects Facebook bots to your desired URL.
 
-First, run the development server:
+## 🌟 Features
+
+- **Facebook Bot Detection**: Automatically detects Facebook crawlers and redirects them
+- **Beautiful Blog Display**: Shows a professional healthcare blog to regular visitors
+- **Serverless Architecture**: Optimized for Vercel's serverless functions
+- **JSON Configuration**: Easy configuration through a simple JSON file
+- **MongoDB Support**: With automatic fallback to JSON file storage
+- **Mobile Responsive**: Looks great on all devices
+
+## 🚀 Quick Setup
+
+### 1. Clone or Fork This Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
+git clone <your-repo-url>
+cd redirector
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Your Settings
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Edit `data/metadata.json` with your desired settings:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```json
+{
+  "title": "Your Custom Facebook Share Title",
+  "adestraLink": "https://your-actual-redirect-url.com",
+  "lastUpdated": "2025-06-14T12:00:00.000Z"
+}
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+**Configuration Options:**
+- `title`: The title that appears when shared on Facebook
+- `adestraLink`: The URL where Facebook users will be redirected
+- `lastUpdated`: Timestamp (automatically updated by the system)
 
-## Learn More
+### 3. Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+#### Method 1: Vercel CLI (Recommended)
+```bash
+npm install -g vercel
+vercel login
+vercel --prod
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Method 2: Vercel Dashboard
+1. Go to [vercel.com](https://vercel.com)
+2. Import your GitHub repository
+3. Deploy automatically
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### 4. Optional: Add MongoDB
 
-## Deploy on Vercel
+Add these environment variables in Vercel Dashboard:
+```
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+If MongoDB is not configured, the app automatically uses the JSON file.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 📁 Project Structure
+
+```
+redirector/
+├── api/
+│   └── index.js          # Main serverless function
+├── config/
+│   └── database.js       # MongoDB connection
+├── data/
+│   └── metadata.json     # Configuration file
+├── models/
+│   └── Metadata.js       # MongoDB model with JSON fallback
+├── package.json          # Dependencies
+├── vercel.json          # Vercel configuration
+└── README.md            # This file
+```
+
+## 🔧 How It Works
+
+1. **Regular Users**: See a beautiful healthcare blog post
+2. **Facebook Crawlers**: Get redirected to your `adestraLink`
+3. **Facebook Posts**: Display the blog title and description
+4. **User Clicks**: Get redirected to your desired URL
+
+## 🎨 Customization
+
+### Change Blog Content
+
+Edit the HTML content in `api/index.js` in the `handleMainPage` function to customize:
+- Blog title and description
+- Article content
+- Styling and layout
+- Meta tags
+
+### Change Facebook Share Preview
+
+Update `data/metadata.json`:
+```json
+{
+  "title": "Your New Title",
+  "adestraLink": "https://your-new-url.com"
+}
+```
+
+### Add Custom Styling
+
+Modify the CSS in the `<style>` section of `api/index.js`.
+
+## 🔍 Testing
+
+### Test Regular User Experience
+Visit your Vercel URL directly: `https://your-app.vercel.app`
+
+### Test Facebook Bot Redirect
+Use a tool like curl to simulate Facebook bot:
+```bash
+curl -H "User-Agent: facebookexternalhit/1.1" https://your-app.vercel.app
+```
+
+### Test Facebook Sharing
+1. Share your link on Facebook
+2. Check the preview shows your blog title
+3. Click the shared link to test redirect
+
+## 🛠️ Development
+
+### Local Development
+```bash
+npm install
+npm run dev
+```
+
+### Environment Variables
+Create `.env.local` for local development:
+```
+MONGODB_URI=your-mongodb-connection-string
+```
+
+## 📊 Monitoring
+
+Check your Vercel dashboard for:
+- Function invocations
+- Error logs
+- Performance metrics
+
+## 🔒 Security
+
+- No admin panel = no security vulnerabilities
+- Configuration through JSON file only
+- Serverless architecture provides automatic scaling
+- No session management required
+
+## 🌍 Deployment URLs
+
+After deployment, you'll get:
+- Production URL: `https://your-app.vercel.app`
+- Preview URLs for each deployment
+
+## 📱 Mobile Optimization
+
+The blog is fully responsive and optimized for:
+- Mobile phones
+- Tablets
+- Desktop computers
+- Facebook in-app browser
+
+## 🔄 Updates
+
+To update your redirect URL:
+1. Edit `data/metadata.json`
+2. Push changes to Git
+3. Vercel automatically redeploys
+
+## 🐛 Troubleshooting
+
+### Common Issues:
+
+**500 Error**: Check Vercel function logs in dashboard
+
+**Redirect Not Working**: Verify `adestraLink` in metadata.json
+
+**Facebook Not Showing Title**: Clear Facebook's cache by using their [Debugger](https://developers.facebook.com/tools/debug/)
+
+**MongoDB Connection Failed**: App automatically falls back to JSON file
+
+## 📞 Support
+
+If you need help:
+1. Check Vercel function logs
+2. Verify your `metadata.json` syntax
+3. Test with Facebook's sharing debugger
+4. Check this README for configuration steps
+
+## 🎉 Success!
+
+Your Facebook link redirector is now live and working! Users will see your beautiful blog, but Facebook traffic gets redirected exactly where you want it.
+
+---
+
+**Built with ❤️ for Vercel Serverless Functions**
